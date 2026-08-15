@@ -9,12 +9,12 @@ import {
   readFileSync,
   rmSync,
   writeFileSync,
-
   appendFileSync,
   fstatSync,
   openSync,
   closeSync,
-  ftruncateSync,} from "node:fs";
+  ftruncateSync,
+} from "node:fs";
 import type { WriteStream } from "node:fs";
 import { join } from "node:path";
 import type { Readable } from "node:stream";
@@ -1520,9 +1520,7 @@ export class ManagedAgentService {
     if (cached) return cached;
 
     const path = this.messagesPath(definition);
-    const messages = existsSync(path)
-      ? readJsonFile<ManagedAgentMessage[]>(path)
-      : [];
+    const messages = existsSync(path) ? readJsonFile<ManagedAgentMessage[]>(path) : [];
 
     this.messageCache.set(definition.id, messages);
     return messages;
@@ -1571,17 +1569,9 @@ export class ManagedAgentService {
         closeSync(fd);
       }
 
-      const item = JSON.stringify(
-        messages[messages.length - 1],
-        null,
-        2
-      );
+      const item = JSON.stringify(messages[messages.length - 1], null, 2);
 
-      appendFileSync(
-        path,
-        `,\n  ${item}\n]`,
-        "utf-8"
-      );
+      appendFileSync(path, `,\n  ${item}\n]`, "utf-8");
 
       return;
     }
@@ -1592,42 +1582,23 @@ export class ManagedAgentService {
      */
     const retained = retainLatest(messages);
 
-    messages.splice(
-      0,
-      messages.length,
-      ...retained
-    );
+    messages.splice(0, messages.length, ...retained);
 
-    writeFileSync(
-      path,
-      JSON.stringify(messages, null, 2),
-      "utf-8"
-    );
+    writeFileSync(path, JSON.stringify(messages, null, 2), "utf-8");
   }
 
-  private writeMessages(
-    definition: ManagedAgentDefinition,
-    messages: ManagedAgentMessage[]
-  ): void {
+  private writeMessages(definition: ManagedAgentDefinition, messages: ManagedAgentMessage[]): void {
     mkdirSync(join(definition.homePath, "messages"), { recursive: true, mode: 0o700 });
-    writeFileSync(
-      this.messagesPath(definition),
-      JSON.stringify(messages, null, 2),
-      "utf-8"
-    );
+    writeFileSync(this.messagesPath(definition), JSON.stringify(messages, null, 2), "utf-8");
     this.messageCache.set(definition.id, messages);
   }
 
-  private readMessageResultsFile(
-    definition: ManagedAgentDefinition
-  ): ManagedAgentMessageResult[] {
+  private readMessageResultsFile(definition: ManagedAgentDefinition): ManagedAgentMessageResult[] {
     const cached = this.messageResultCache.get(definition.id);
     if (cached) return cached;
 
     const path = this.messageResultsPath(definition);
-    const results = existsSync(path)
-      ? readJsonFile<ManagedAgentMessageResult[]>(path)
-      : [];
+    const results = existsSync(path) ? readJsonFile<ManagedAgentMessageResult[]>(path) : [];
 
     this.messageResultCache.set(definition.id, results);
     return results;
@@ -1638,11 +1609,7 @@ export class ManagedAgentService {
     results: ManagedAgentMessageResult[]
   ): void {
     mkdirSync(join(definition.homePath, "messages"), { recursive: true, mode: 0o700 });
-    writeFileSync(
-      this.messageResultsPath(definition),
-      JSON.stringify(results, null, 2),
-      "utf-8"
-    );
+    writeFileSync(this.messageResultsPath(definition), JSON.stringify(results, null, 2), "utf-8");
     this.messageResultCache.set(definition.id, results);
   }
 
@@ -1676,34 +1643,18 @@ export class ManagedAgentService {
         closeSync(fd);
       }
 
-      const item = JSON.stringify(
-        results[results.length - 1],
-        null,
-        2
-      );
+      const item = JSON.stringify(results[results.length - 1], null, 2);
 
-      appendFileSync(
-        path,
-        `,\n  ${item}\n]`,
-        "utf-8"
-      );
+      appendFileSync(path, `,\n  ${item}\n]`, "utf-8");
 
       return;
     }
 
     const retained = retainLatest(results);
 
-    results.splice(
-      0,
-      results.length,
-      ...retained
-    );
+    results.splice(0, results.length, ...retained);
 
-    writeFileSync(
-      path,
-      JSON.stringify(results, null, 2),
-      "utf-8"
-    );
+    writeFileSync(path, JSON.stringify(results, null, 2), "utf-8");
   }
 
   private findMessageResult(messageId: string, agentId?: string): ManagedAgentMessageResult | null {
